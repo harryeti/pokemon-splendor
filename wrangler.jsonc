@@ -7,7 +7,9 @@
   // (the Worker only runs for non-asset paths like the WebSocket route).
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "pokemon-splendor",
-  "workers_dev": false,
+  // Reachable at <name>.<your-subdomain>.workers.dev after `wrangler deploy`.
+  // Set to false once a custom domain is configured below.
+  "workers_dev": true,
   "preview_urls": false,
   "main": "worker/index.js",
   "compatibility_date": "2026-06-24",
@@ -24,9 +26,9 @@
     // SQLite-backed Durable Objects are Free-plan eligible and cheaper.
     { "tag": "v1", "new_sqlite_classes": ["Room"] }
   ],
-  // Custom domain — also present in the dashboard; declared here so it's
-  // version-controlled. The Worker serves the game + /room/:code/ws on it too.
-  "routes": [
-    { "pattern": "pokemon-splendor.try-board-game.uk", "custom_domain": true }
-  ]
+  // Custom domain: intentionally left empty. The domain's zone must belong to the
+  // same Cloudflare account. To use one, add for example:
+  //   "routes": [{ "pattern": "your.domain.example", "custom_domain": true }]
+  // (wrangler.jsonc has no env-var substitution, so this stays a manual edit.)
+  "routes": []
 }

@@ -30,7 +30,26 @@ npx serve .
 - **连接恢复**：切回前台会同步进度；心跳或操作确认超时后自动恢复连接。同步完成前暂停操作，避免重复提交；也可点击「立即重连」。离开房间会关闭连接，邀请链接可用于重新加入。
 - **超时代打**：某玩家超过 **3 分钟**未行动，房主的「研究级 AI」会仅凭公共信息接管该回合，避免卡局。
 
-联机依赖一个 Cloudflare Worker（见下「部署」），纯静态托管（如 GitHub Pages）只能单机热座 + AI，无法联机。
+联机需要一个房间服务器，有两种：Cloudflare Worker（公网，见下「部署」），或下面的 Node 服务器（局域网）。两者共用 `js/room.js`，规则完全一致。纯静态托管（如 GitHub Pages）只能单机热座 + AI，无法联机。
+
+### 局域网联机（Node 服务器）
+
+一台电脑当服务器，同一 Wi-Fi 下的手机、电脑用浏览器直接打开即可，不需要公网和 Cloudflare 账号。需要 Node 18+。
+
+```bash
+npm ci          # 唯一依赖：ws
+npm start       # 默认监听 0.0.0.0:8787
+```
+
+启动后终端会打印本机的局域网地址，例如 `http://192.168.1.23:8787/`，其他设备打开这个地址，再创建/加入房间即可。同一个端口既提供网页，也提供联机的 WebSocket。
+
+- **电脑座位**：大厅里可以添加电脑，由服务器按回合驱动（每步间隔约 1.2 秒）。所有真人都断开时电脑暂停，有人重连后继续。
+- **断线与重启**：房间状态保存在 `.runtime/rooms/`（已加入 `.gitignore`），停掉服务再启动，玩家用原来的浏览器重连就能回到原座位。
+- **环境变量**：`PORT`（默认 8787）、`HOST`（默认 `0.0.0.0`；只想本机用就设为 `127.0.0.1`）、`ROOM_DATA_DIR`（快照目录）。
+- **连不上时**：确认设备在同一网段；macOS 首次启动时如果弹出「是否允许 node 接受传入连接」，选允许；有的公共 Wi-Fi 开启了客户端隔离，设备之间无法互连。
+- 服务器只对外提供游戏需要的文件（`index.html`、`css/`、`js/`、`data/`、`assets/` 等），`server/`、`test/`、`.runtime/` 和隐藏文件都不会被访问到。
+
+Node 服务器最初来自 [honey634546-dev/pokemon-splendor](https://github.com/honey634546-dev/pokemon-splendor) 的 ECS 部署版本，在此基础上补了电脑座位调度、局域网静态服务和完整的状态持久化。
 
 ## 玩法要点
 
@@ -76,6 +95,7 @@ node test/engine.test.js   # 引擎规则 + 100 局自走验证（含计分/进�
 node test/ai.test.js       # AI 强度（对贪心基线胜率）/ 终局 / 延迟
 node test/ai_expansions.test.js # PokéMart/Mega AI、暗牌公平性、搜索稳定性
 node test/room.test.js     # 联机房间权威（座位/脱敏/重连/持久化/超时代打）
+node test/server.test.js   # 局域网 Node 服务器（静态文件白名单 / 电脑调度 / 重启恢复 / 完整对局）
 node test/megas.test.js    # 超级进化扩展
 node test/pokemart.test.js # PokéMart 商店扩展
 node test/tutorial_layout.test.js # 新手教程气泡布局（永不遮挡行动栏/目标）
