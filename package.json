@@ -1,0 +1,18 @@
+{
+  "name": "pokemon-splendor",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Pokémon Splendor static game + Node room server for LAN play",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "test": "for f in test/*.test.js; do echo \"== $f\"; node \"$f\" || exit 1; done"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "ws": "^8.18.3"
+  }
+}

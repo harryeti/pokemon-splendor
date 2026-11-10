@@ -5,6 +5,10 @@ node_modules
 wrangler.jsonc
 .assetsignore
 worker
+server
+package.json
+package-lock.json
+.runtime
 train
 test
 assets/cards/_qc

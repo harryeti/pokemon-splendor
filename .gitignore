@@ -15,3 +15,6 @@ _rep_*.json
 
 # mobile UX audit screenshots (dev tool output)
 test/_ux_audit/
+
+# Node LAN server: room snapshots (runtime data)
+.runtime/
